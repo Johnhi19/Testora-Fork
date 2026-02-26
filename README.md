@@ -85,7 +85,7 @@ Assuming you have set up the database:
 
 ### RQ1: Real-World Problems Found by Testora
 
-See [this sheet](https://docs.google.com/spreadsheets/d/1We-EwrNv_0U1Wco_eAUbxwjyFkkPI9kM7tkaRgP0yyI/edit?usp=sharing) for details on the 30 real-world problems, the corresponding PRs, the issues we reported, and their status.
+See [this sheet](data/real-world_problems.csv) for details on the 30 real-world problems, the corresponding PRs, the issues we reported, and their status.
 
 ### RQ2 (Effectiveness of Test Generation) and RQ4 (Costs)
 
