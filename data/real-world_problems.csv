@@ -1,0 +1,33 @@
+Id in paper,Project,PR,Kind,Link (if available),Status,Comment,Reported,Confirmed,Fixed
+1,Keras,https://github.com/keras-team/keras/pull/19814,Regression,https://github.com/keras-team/keras/issues/19995,Confirmed and fixed,,1,1,1
+2,Marshmallow,https://github.com/marshmallow-code/marshmallow/pull/1399/,Coincidental fix,,"Nothing to report, because no released version will be changed",,,,
+3,Marshmallow,https://github.com/marshmallow-code/marshmallow/pull/2698,Regression,https://github.com/marshmallow-code/marshmallow/pull/2699,Not reported; got fixed independenty,,,,
+4,Marshmallow,https://github.com/marshmallow-code/marshmallow/pull/2699,Regression,,"Not reported, because function got later removed anyway; no release will be changed",,,,
+5,Marshmallow,https://github.com/marshmallow-code/marshmallow/pull/2700,Regression,,Not reported because behavior got changed back later; no release will be changed,,,,
+6,Marshmallow,https://github.com/marshmallow-code/marshmallow/pull/2701,Regression,,Not reported because behavior got changed back later; no release will be changed,,,,
+7,Pandas,https://github.com/pandas-dev/pandas/pull/55108,Regression,https://github.com/pandas-dev/pandas/issues/58971,Confirmed and fixed,,1,1,1
+8,Pandas,https://github.com/pandas-dev/pandas/pull/56841,Regression,https://github.com/pandas-dev/pandas/issues/58603,Reported,,1,,
+9,Pandas,https://github.com/pandas-dev/pandas/pull/57034,Regression,https://github.com/pandas-dev/pandas/issues/58977,Confirmed and fixed,"Fixed on Oct 31, 2025",1,1,1
+10,Pandas,https://github.com/pandas-dev/pandas/pull/57046,Coincidental fix,,"Nothing to report, because no released version will be changed",,,,
+11,Pandas,https://github.com/pandas-dev/pandas/pull/57205,Coincidental fix,,"Nothing to report, because no released version will be changed",,,,
+12,Pandas,https://github.com/pandas-dev/pandas/pull/57399,Regression,https://github.com/pandas-dev/pandas/issues/58964,Confirmed and fixed,"Fixed on Nov 9, 2025",1,1,1
+13,Pandas,https://github.com/pandas-dev/pandas/pull/57595,Coincidental fix,https://github.com/pandas-dev/pandas/issues/58644,Confirmed,,,,
+14,Pandas,https://github.com/pandas-dev/pandas/pull/58376,Coincidental fix,https://github.com/pandas-dev/pandas/issues/58641,Confirmed,,,,
+15,Pandas,https://github.com/pandas-dev/pandas/pull/60461,Coincidental fix,,"Nothing to report, because no released version will be changed",,,,
+16,Pandas,https://github.com/pandas-dev/pandas/pull/60483,Coincidental fix,,"Nothing to report, because no released version will be changed",Backport of 60461,,,
+17,Pandas,https://github.com/pandas-dev/pandas/pull/60538,Regression,https://github.com/pandas-dev/pandas/issues/60903,Confirmed and fixed,,1,1,1
+18,Scipy,https://github.com/scipy/scipy/pull/19263,Regression,https://github.com/scipy/scipy/issues/21207,Confirmed and fixed,,1,1,1
+19,Scipy,https://github.com/scipy/scipy/pull/19428,Regression,,"Nothing to report, because fixed independently in scipy 1.14.0",,,,
+20,Scipy,https://github.com/scipy/scipy/pull/19680,Regression,https://github.com/scipy/scipy/issues/21205,Won't fix,,1,1,
+21,Scipy,https://github.com/scipy/scipy/pull/19776,Coincidental fix,,"Nothing to report, because no released version will be changed",,,,
+22,Scipy,https://github.com/scipy/scipy/pull/19853,Coincidental fix,,"Nothing to report, because no released version will be changed",,,,
+23,Scipy,https://github.com/scipy/scipy/pull/19861,Coincidental fix,,"Nothing to report, because no released version will be changed",,,,
+24,Scipy,https://github.com/scipy/scipy/pull/20089,Regression,https://github.com/scipy/scipy/issues/20988,Confirmed and fixed,"Fixed on Apr 17, 2025",1,1,1
+25,Scipy,https://github.com/scipy/scipy/pull/20751,Regression,https://github.com/scipy/scipy/issues/21152,Confirmed and fixed,,1,1,1
+26,Scipy,https://github.com/scipy/scipy/pull/20974,Regression,https://github.com/scipy/scipy/issues/21106,Confirmed and fixed,,1,1,1
+27,Scipy,https://github.com/scipy/scipy/pull/21036,Coincidental fix,,"Nothing to report, because no released version will be changed",,,,
+28,Scipy,https://github.com/scipy/scipy/pull/21076,Regression,https://github.com/scipy/scipy/issues/21192,Confirmed and fixed,,1,1,1
+29,Scipy,https://github.com/scipy/scipy/pull/21553,Regression,,Not reported; got fixed independently (use logm() to validate results of expm()),,,,
+30,Scipy,https://github.com/scipy/scipy/pull/21768,Regression,https://github.com/scipy/scipy/issues/22458,Confirmed and fixed,,1,1,1
+,,,,,,,,,
+,,,,,,,13,12,11
