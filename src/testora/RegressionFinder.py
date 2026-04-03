@@ -121,6 +121,74 @@ def execute_test(test_execution, docker_executor):
     test_execution.output = output
     test_execution.coverage_report = coverage_report
 
+def compile_on_commit(cloned_repo_manager, pr, commit):
+    cloned_repo = cloned_repo_manager.get_cloned_repo(
+        commit)
+    container_name = cloned_repo.container_name
+    docker_executor = DockerExecutor(container_name,
+                                     project_name=cloned_repo_manager.repo_name,
+                                     coverage_files=pr.non_test_modified_python_files)
+        
+
+    append_event(
+        Event(pr_nb=-1, message=f"Checking environment for {cloned_repo_manager.repo_name} at commit {commit}"))
+
+    check_import_cmd = "python -c 'import scipy; print(f\"SciPy version {scipy.__version__} is already functional\")'"
+    import_output, exit_code = docker_executor.execute_shell(check_import_cmd)
+    
+    if exit_code == 0:
+        print(f"--- SciPy import successful for {commit}. Skipping rebuild. ---")
+        append_event(Event(pr_nb=-1, message=f"Skipping build: SciPy already functional at {commit}"))
+        return 
+    
+    append_event(
+        Event(pr_nb=-1, message=f"Important: Re-Compiling it, Compiling {cloned_repo_manager.repo_name} at commit {commit} in container {container_name}"))
+    
+    if commit != "main":
+
+        print("--- Locating the source file ---")
+        find_out, _ = docker_executor.execute_shell("find /home/scipy -name _fmm_core.cpp")
+        target_file = find_out.strip()
+
+        if target_file:
+            print(f"--- Found file at: {target_file} ---")
+            
+            patch_python_code = f"""
+with open('{target_file}', 'r') as f:
+    content = f.read()
+if '#include <cstdint>' not in content:
+    with open('{target_file}', 'w') as f:
+        f.write('#include <cstdint>\\n' + content)
+print('Successfully patched {target_file}')
+"""
+            print("--- Applying Patch via Python ---")
+            patch_output, _ = docker_executor.execute_python_code(patch_python_code)
+            print(patch_output)
+
+            print("--- Starting Build ---")
+            build_cmd = (
+                "pip install . --no-build-isolation -v "
+                "-Csetup-args=\"-Dfortran_args=-fallow-argument-mismatch\" "
+                "-Csetup-args=\"-Dc_args=-Wno-error=implicit-function-declaration\" "
+                "-Csetup-args=\"-Dc_args=-Wno-implicit-int\""
+            )
+
+            steps = [
+                "pip install numpy==1.26.4 cython==3.0.10 pythran==0.15.0 pybind11==2.12.0 meson-python ninja",
+                build_cmd
+            ]
+            
+            for cmd in steps:
+                print(f"\n--- Running: {cmd[:60]}... ---")
+                output, exit_code = docker_executor.execute_shell(cmd)
+                print(output)
+                if exit_code != 0:
+                    append_event(
+                        Event(pr_nb=-1, message=f"Error occurred while compiling the command {cmd}: {output}"))
+                    break
+    
+    append_event(
+        Event(pr_nb=-1, message=f"Important: Done with Re-Compiling it, Done with compiling {cloned_repo_manager.repo_name} at commit {commit}"))
 
 def execute_tests_on_commit(cloned_repo_manager, pr, test_executions, commit):
     cloned_repo = cloned_repo_manager.get_cloned_repo(
@@ -129,6 +197,7 @@ def execute_tests_on_commit(cloned_repo_manager, pr, test_executions, commit):
     docker_executor = DockerExecutor(container_name,
                                      project_name=cloned_repo_manager.repo_name,
                                      coverage_files=pr.non_test_modified_python_files)
+        
 
     append_event(
         Event(pr_nb=-1, message=f"Compiling {cloned_repo_manager.repo_name} at commit {commit} in container {container_name}"))
@@ -173,12 +242,12 @@ def generate_tests_with_prompt(pr, prompt, model, nb_samples=1):
     while attempts_left > 0:
         raw_answer = model.query(prompt, nb_samples)
         append_event(LLMEvent(pr_nb=pr.number,
-                    message="Raw answer", content="\n---(next sample)---".join(raw_answer)))
+                              message="Raw answer", content="\n---(next sample)---".join(raw_answer)))
 
         generated_tests = prompt.parse_answer(raw_answer)
         for idx, test in enumerate(generated_tests):
             append_event(LLMEvent(pr_nb=pr.number,
-                        message=f"Generated test {idx+1}", content=test))
+                                  message=f"Generated test {idx+1}", content=test))
         if len(generated_tests) > 0:
             return generated_tests
         attempts_left -= 1
@@ -322,7 +391,8 @@ def classify_regression(project_name, pr, changed_functions, docstrings, old_exe
         attempts_left = 3
         while attempts_left > 0:
             try:
-                classification_result = prompt.parse_answer([raw_answer_sample])
+                classification_result = prompt.parse_answer(
+                    [raw_answer_sample])
                 break
             except TestoraException as e:
                 attempts_left -= 1
@@ -335,12 +405,12 @@ def classify_regression(project_name, pr, changed_functions, docstrings, old_exe
                                          test_code=old_execution.code,
                                          old_output=old_execution.output,
                                          new_output=new_execution.output,
-                                         classification=classification_result.classification, # type: ignore
-                                         classification_explanation=classification_result.classification_explanation, # type: ignore
+                                         classification=classification_result.classification,  # type: ignore
+                                         classification_explanation=classification_result.classification_explanation,  # type: ignore
                                          old_is_crash=is_crash(
                                              old_execution.output),
                                          new_is_crash=is_crash(new_execution.output)))
-        result = classification_result.classification == Classification.REGRESSION # type: ignore
+        result = classification_result.classification == Classification.REGRESSION  # type: ignore
         all_results.append(result)
     return all_results
 
@@ -352,14 +422,15 @@ def select_expected_behavior(project_name, pr, old_execution, new_execution, doc
     while attempts_left > 0:
         try:
             prompt = SelectExpectedBehaviorPrompt(
-            project_name, old_execution.code, old_execution.output, new_execution.output, docstrings)
-            raw_answer = llm.query(prompt, temperature=Config.classification_temp)
+                project_name, old_execution.code, old_execution.output, new_execution.output, docstrings)
+            raw_answer = llm.query(
+                prompt, temperature=Config.classification_temp)
             append_event(LLMEvent(pr_nb=pr.number,
-                                message="Raw answer", content="\n---(next sample)---".join(raw_answer)))
+                                  message="Raw answer", content="\n---(next sample)---".join(raw_answer)))
             expected_behavior = prompt.parse_answer(raw_answer)
             append_event(SelectBehaviorEvent(pr_nb=pr.number,
-                                                message="Selected expected behavior",
-                                                expected_output=expected_behavior))
+                                             message="Selected expected behavior",
+                                             expected_output=expected_behavior))
             return expected_behavior
 
         except TestoraException as e:
@@ -442,6 +513,9 @@ def check_pr(github_repo, cloned_repo_manager, pr):
     # execute tests
     old_executions = [TestExecution(t) for t in generated_tests]
     new_executions = [TestExecution(t) for t in generated_tests]
+
+    compile_on_commit(cloned_repo_manager, pr, pr.pre_commit)
+    compile_on_commit(cloned_repo_manager, pr, pr.post_commit)
 
     execute_tests_on_commit(cloned_repo_manager, pr,
                             old_executions, pr.pre_commit)
